@@ -36,16 +36,12 @@ jobs:
       - docker/check:
           docker-username: DOCKER_USERNAME
           docker-password: DOCKER_PASSWORD
-      - run:
-          name: Build Docker Image
-          command: |
-            echo "Building Docker image"
-            docker build -t education-space/app:latest .
-      - run:
-          name: Push Docker Image
-          command: |
-            echo "Pushing Docker image to Docker Hub"
-            docker push education-space/app:latest
+      - docker/build:
+          image: $DOCKER_USERNAME/education-space
+          tag: latest
+      - docker/push:
+          image: $DOCKER_USERNAME/education-space
+          tag: latest
 
 workflows:
   simple_workflow:
@@ -57,3 +53,5 @@ workflows:
       - build-and-push:
           requires:
             - test
+          context:
+            - docker-hub-creds
