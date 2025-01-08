@@ -34,8 +34,8 @@ jobs:
       - checkout
       - setup_remote_docker
       - docker/check:
-          docker-username: DOCKERHUB_USERNAME
-          docker-password: DOCKERHUB_PASSWORD
+          docker-username: DOCKER_USERNAME
+          docker-password: DOCKER_PASSWORD
       - run:
           name: Build Docker Image
           command: |
