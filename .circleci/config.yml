@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
   node: circleci/node@5.0.1
-  docker: circleci/docker@2.1.1
+  docker: circleci/docker@1.4.0
 
 jobs:
   build:
@@ -29,19 +29,19 @@ jobs:
 
   build-and-push:
     docker:
-      - image: cimg/base:stable
+      - image: cimg/base:current
     steps:
       - checkout
       - setup_remote_docker
+      - run:
+          name: Login to Docker Hub
+          command: |
+            echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
       - run:
           name: Build Docker Image
           command: |
             echo "Building Docker image"
             docker build -t education-space/app:latest .
-      - run:
-          name: Login to Docker Hub
-          command: |
-            echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
       - run:
           name: Push Docker Image
           command: |
