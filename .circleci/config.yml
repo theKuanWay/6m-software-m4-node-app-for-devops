@@ -2,7 +2,8 @@ version: 2.1
 
 orbs:
   node: circleci/node@5.0.1
-  docker: circleci/docker@1.4.0
+  heroku: circleci/heroku@2.0.0
+  docker: circleci/docker@2.1.4
 
 jobs:
   build:
@@ -26,22 +27,36 @@ jobs:
       - run: |
           echo "Running tests"
           npm run test
-
-  build-and-push:
-    docker:
-      - image: cimg/base:current
-    steps:
-      - checkout
+  deploy:
+      docker:
+        - image: cimg/node:16.10
+      steps:
       - setup_remote_docker
-      - docker/check:
-          docker-username: DOCKER_USERNAME
-          docker-password: DOCKER_PASSWORD
-      - docker/build:
-          image: $DOCKER_USERNAME/education-space
-          tag: latest
-      - docker/push:
-          image: $DOCKER_USERNAME/education-space
-          tag: latest
+      - heroku/install
+      - checkout
+      - run:
+          name: Heroku Container Push
+          command: |
+            heroku container:login
+            heroku stack:set container -a heroku-kw
+            heroku container:push web -a heroku-kw
+            heroku container:release web -a heroku-kw
+        -
+  # build-and-push:
+  #   docker:
+  #     - image: cimg/base:current
+  #   steps:
+  #     - checkout
+  #     - setup_remote_docker
+  #     - docker/check:
+  #         docker-username: DOCKER_USERNAME
+  #         docker-password: DOCKER_PASSWORD
+  #     - docker/build:
+  #         image: $DOCKER_USERNAME/education-space
+  #         tag: latest
+  #     - docker/push:
+  #         image: $DOCKER_USERNAME/education-space
+  #         tag: latest
 
 workflows:
   simple_workflow:
@@ -50,8 +65,11 @@ workflows:
       - test:
           requires: 
             - build
-      - build-and-push:
+      - deploy:
           requires:
             - test
-          context:
-            - docker-hub-creds
+      # - build-and-push:
+      #     requires:
+      #       - test
+      #     context:
+      #       - docker-hub-creds
