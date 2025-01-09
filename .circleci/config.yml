@@ -28,9 +28,9 @@ jobs:
           echo "Running tests"
           npm run test
   deploy:
-      docker:
-        - image: cimg/node:16.10
-      steps:
+    docker:
+      - image: cimg/node:16.10
+    steps:
       - setup_remote_docker
       - heroku/install
       - checkout
@@ -41,7 +41,6 @@ jobs:
             heroku stack:set container -a heroku-kw
             heroku container:push web -a heroku-kw
             heroku container:release web -a heroku-kw
-        -
   # build-and-push:
   #   docker:
   #     - image: cimg/base:current
