@@ -59,23 +59,36 @@ jobs:
 
 workflows:
   main_workflow:
-    when: << pipeline.git.branch == "main" >>
     jobs:
-      - build
+      - build:
+          filters:
+            branches:
+              only: main
       - test:
           requires:
             - build
+          filters:
+            branches:
+              only: main
 
   release_workflow:
-    when: << pipeline.git.branch == "release" >>
     jobs:
-      - build
+      - build:
+          filters:
+            branches:
+              only: release
       - test:
           requires:
             - build
+          filters:
+            branches:
+              only: release
       - deploy:
           requires:
             - test
+          filters:
+            branches:
+              only: release
       # - build-and-push:
       #     requires:
       #       - test
