@@ -58,11 +58,20 @@ jobs:
   #         tag: latest
 
 workflows:
-  simple_workflow:
+  main_workflow:
+    when: << pipeline.git.branch == "main" >>
     jobs:
       - build
       - test:
-          requires: 
+          requires:
+            - build
+
+  release_workflow:
+    when: << pipeline.git.branch == "release" >>
+    jobs:
+      - build
+      - test:
+          requires:
             - build
       - deploy:
           requires:
