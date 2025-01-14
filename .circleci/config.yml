@@ -38,14 +38,14 @@ jobs:
           name: Heroku Container Push
           command: |
             heroku container:login
-            heroku stack:set container -a heroku-kw
-            heroku container:push web -a heroku-kw
-            heroku container:release web -a heroku-kw
+            heroku stack:set container -a jonathan-su-devops
+            heroku container:push web -a jonathan-su-devops
+            heroku container:release web -a jonathan-su-devops
   scan:
     docker: 
       - image: cimg/node:16.10
     environment:
-      IMAGE_NAME: dockerkw94/education-space
+      IMAGE_NAME: jonnywony/education-space
     steps:
       - checkout
       - setup_remote_docker
@@ -53,7 +53,19 @@ jobs:
       - run: docker build -t $IMAGE_NAME .
       - snyk/scan: 
           docker-image-name: $IMAGE_NAME
-  
+  codescan:
+    docker: 
+      - image: cimg/node:16.10
+    environment:
+      IMAGE_NAME: jonnywony/education-space
+    steps:
+      - checkout
+      - setup_remote_docker
+      - docker/check
+      - snyk/install
+      - run: |
+          snyk code test
+
 
 
 
@@ -67,6 +79,9 @@ workflows:
       - scan:
           requires:
             - build
+      - codescan:
+          requires:
+            - build
       - test:
           requires: 
-            - scan
+            - scan 
