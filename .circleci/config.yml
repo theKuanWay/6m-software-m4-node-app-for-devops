@@ -4,6 +4,7 @@ orbs:
   node: circleci/node@5.0.1
   heroku: circleci/heroku@2.0.0
   docker: circleci/docker@2.1.4
+  snyk: snyk/snyk@1.5.0
 
 jobs:
   build:
@@ -41,6 +42,20 @@ jobs:
             heroku stack:set container -a heroku-kw
             heroku container:push web -a heroku-kw
             heroku container:release web -a heroku-kw
+  scan:
+    docker: 
+      - image: cimg/node:16.10
+    environment:
+      IMAGE_NAME: jonnywony/education-space
+    steps:
+      - checkout
+      - setup_remote_docker
+      - docker/check
+      - run: docker build -t $IMAGE_NAME .
+      - snyk/scan: 
+          docker-image-name: $IMAGE_NAME
+
+
   # build-and-push:
   #   docker:
   #     - image: cimg/base:current
@@ -64,6 +79,9 @@ workflows:
           filters:
             branches:
               only: main
+      - scan:
+          requires:
+              - build
       - test:
           requires:
             - build
