@@ -17,7 +17,6 @@ jobs:
       - run: |
           echo "Install dependencies"
           npm install
-
   test:
     docker: 
       - image: cimg/node:16.10
@@ -54,61 +53,20 @@ jobs:
       - run: docker build -t $IMAGE_NAME .
       - snyk/scan: 
           docker-image-name: $IMAGE_NAME
+  
 
 
-  # build-and-push:
-  #   docker:
-  #     - image: cimg/base:current
-  #   steps:
-  #     - checkout
-  #     - setup_remote_docker
-  #     - docker/check:
-  #         docker-username: DOCKER_USERNAME
-  #         docker-password: DOCKER_PASSWORD
-  #     - docker/build:
-  #         image: $DOCKER_USERNAME/education-space
-  #         tag: latest
-  #     - docker/push:
-  #         image: $DOCKER_USERNAME/education-space
-  #         tag: latest
 
 workflows:
-  main_workflow:
+  simple_workflow:
     jobs:
-      - build:
-          filters:
-            branches:
-              only: main
-      - scan:
-          requires:
-              - build
-      - test:
-          requires:
-            - build
-          filters:
-            branches:
-              only: main
-
-  release_workflow:
-    jobs:
-      - build:
-          filters:
-            branches:
-              only: release
-      - test:
-          requires:
-            - build
-          filters:
-            branches:
-              only: release
-      - deploy:
-          requires:
-            - test
-          filters:
-            branches:
-              only: release
-      # - build-and-push:
+      - build
+      # - deploy:
       #     requires:
       #       - test
-      #     context:
-      #       - docker-hub-creds
+      - scan:
+          requires:
+            - build
+      - test:
+          requires: 
+            - scan
